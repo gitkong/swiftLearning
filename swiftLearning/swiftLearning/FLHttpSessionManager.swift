@@ -11,113 +11,119 @@ import UIKit
 class FLHttpSessionManager: NSObject {
     
     var session:URLSession?
-    var baseUrl:URL?
+    var baseUrl:String?
     
-    override init (){
-        super.init()
-        self.session = URLSession(configuration: URLSessionConfiguration.default, delegate: self, delegateQueue: nil)
-    }
+//    override init (){
+//        super.init()
+//        self.session = URLSession(configuration: URLSessionConfiguration.default, delegate: self, delegateQueue: nil)
+//    }
     
-    init(baseUrl : URL,configuration:URLSessionConfiguration){
+    init(baseUrl : String,configuration:URLSessionConfiguration){
         
         super.init()
         
         var url = baseUrl
-        // Ensure terminal slash for baseURL path, so that NSURL +URLWithString:relativeToURL: works as expected
-        if !url.path.isEmpty && !url.absoluteString.hasSuffix("/") {
-            url = url.appendingPathComponent("")
+        // 确保路径有/
+        if !url.isEmpty && !url.hasSuffix("/") {
+            url = url.appending("/")
         }
         self.baseUrl = url
         
         self.session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
     }
     
-    
-    
-    func fl_dataTask(url:URL,httpMethod:String,parmas:Dictionary<String, Any>,completionHandler:@escaping (Data?, URLResponse?, Error?) -> Swift.Void) -> URLSessionDataTask{
+    func fl_GET(urlString:String,params:Dictionary<String,Any>,success:@escaping (URLSessionDataTask,Any)->(),failure:@escaping (URLSessionDataTask,Any)->())->(URLSessionDataTask){
         
-        var tempUrl:URL?
+        return self.fl_dataTask(urlString: urlString, method: "GET", params: params, success: success, failure: failure)
+    }
+    
+    func fl_POST(urlString:String,params:Dictionary<String,Any>,success:@escaping (URLSessionDataTask,Any)->(),failure:@escaping (URLSessionDataTask,Any)->())->(URLSessionDataTask){
+        
+        return self.fl_dataTask(urlString: urlString, method: "POST", params: params, success: success, failure: failure)
+    }
+    
+    func fl_dataTask(urlString:String,method:String,params:Dictionary<String,Any>,success:@escaping (URLSessionDataTask,Any)->(),failure:@escaping (URLSessionDataTask,Any)->())->(URLSessionDataTask){
+        
+        var dataTask:URLSessionDataTask?
+        
+        dataTask = self.fl_dataTask(url: urlString, httpMethod: method, params: params, completionHandler: { (data, response, error) in
+            
+            if error != nil {
+                var errorMessage:Any = error!
+                if error is URLRequestSerializationError{
+                    switch error as! URLRequestSerializationError {
+                    case URLRequestSerializationError.RequestSerializationNoValueForKey:
+                        errorMessage = "========  请求参数拼接中找不到 key 对应的 value 值   ========"
+                        break
+                        
+                    default:
+                        break
+                        
+                    }
+                }
+                failure(dataTask!,errorMessage)
+            }
+            else{
+                if data != nil {
+                    var json:Any?
+                    do{
+                        try json = JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.allowFragments)
+                    }
+                    catch{
+                        json = "========  数据通过 JSONSerialization 序列化失败   ========"
+                    }
+                    success(dataTask!,json!)
+                }
+                else{
+                    success(dataTask!,"data = nil")
+                }
+            }
+        })
+        
+        return dataTask!
+    }
+    
+    
+    
+    func fl_dataTask(url:String,httpMethod:String,params:Dictionary<String, Any>,completionHandler:@escaping (Data?, URLResponse?, Error?) -> Swift.Void) -> URLSessionDataTask{
+        
+        var tempUrl:String?
         // 拼接基路径
-        if url.absoluteString.hasPrefix("http://") || url.absoluteString.hasPrefix("https://") {
+        if url.hasPrefix("http://") || url.hasPrefix("https://") {
             tempUrl = url
         }
         else{
             
-            tempUrl = self.baseUrl?.appendingPathComponent(url.absoluteString)
+            tempUrl = self.baseUrl?.appending(url)
             // 这个方法不能拼接baseurl
             // URL(string: url.absoluteString, relativeTo: self.baseUrl)
         }
         
         // 判断url是否有效
-        assert(tempUrl!.absoluteString != "", "url 不能为空")
+        assert(tempUrl != "", "url 不能为空")
         
+        var request:URLRequest?
         
-        let bodyStr : String = self.fl_httpBodyString(parmas: parmas)
-        
-        if httpMethod == "POST" {
+        var requestError:Error?
+        do {
+            try request = FLURLRequestSerialization().fl_request(method: httpMethod, urlString: tempUrl!, params: params)
             
-        }
-        else if httpMethod == "GET"{
-            // 这个方法会将？转义
-            // tempUrl?.appendingPathComponent(<#T##pathComponent: String##String#>)
-            
-            tempUrl = URL(string: (tempUrl?.absoluteString.appending("?"+"\(bodyStr)"))!)
+        } catch {
+            requestError = error
+            // 如果有错误，创建一个默认的request
+            request = URLRequest(url: URL(string: tempUrl!)!)
         }
         
-        print("------------url ？ = \(tempUrl!)")
-        var request = URLRequest(url: tempUrl!, cachePolicy: URLRequest.CachePolicy.useProtocolCachePolicy, timeoutInterval: 10.0)
-        
-        // 请求方法
-        request.httpMethod = httpMethod
-        
-        if httpMethod == "POST" {
-            // 请求头
-            request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-            // 请求体
-            request.httpBody = bodyStr.data(using: String.Encoding.utf8)
-        }
-        else if httpMethod == "GET"{
-            
-        }
-        
-        return self.fl_dataTask(request: request, completionHandler: completionHandler)
-    }
-    
-    
-    func fl_dataTask(request:URLRequest,completionHandler:@escaping (Data?, URLResponse?, Error?) -> Swift.Void) -> URLSessionDataTask{
-        
-        let dataTask = self.session!.dataTask(with: request) { (data, response, error) in
+        let dataTask = self.session!.dataTask(with: request!) { (data, response, error) in
             // 回到主线程
             DispatchQueue.main.async {
-                completionHandler(data,response,error)
+                // 如果有自己的错误，返回自己的，没有返回系统的
+                completionHandler(data,response,requestError ?? error)
             }
         }
         dataTask.resume()
         
         return dataTask
-    }
-    
-    
-    func fl_dataTask(with url:URL ,completionHandler:@escaping (Data?, URLResponse?, Error?) -> Swift.Void) -> URLSessionDataTask{
-        
-        let dataTask = self.session!.dataTask(with: url) { (data, response, error) in
-            print("\(response)")
-            }
-        
-        dataTask.resume()
-        
-        return dataTask
-    }
-    
-    private func fl_httpBodyString(parmas:Dictionary<String, Any>)->String{
-        let tempArr = NSMutableArray()
-        for key in parmas.keys {
-            // 解包去掉optional
-            let value = parmas[key]!
-            print("----------value = \(value)")
-            tempArr.add("\(key)"+"="+"\(value)")
-        }
-        return tempArr.componentsJoined(by: "&")
     }
 }
 

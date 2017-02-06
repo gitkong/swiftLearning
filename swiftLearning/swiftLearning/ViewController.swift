@@ -12,15 +12,33 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        
         // GET
-//        let url:URL = URL(string: "http://60.205.59.95/v1/dish/info")!
-        print(self)
+//        let baseUrl:String = "http://60.205.59.95"
+//        let url:String = "/v1/dish/info"
+        
         // POST
-        let url:URL = URL(string: "/Ajax/ckUserFocus")!
-        let baseUrl:URL = URL(string: "http://liveapi.vzan.com")!
+        let url:String = "/Ajax/ckUserFocus"
+        let baseUrl:String = "http://liveapi.vzan.com"
         let manager = FLHttpSessionManager(baseUrl: baseUrl, configuration: URLSessionConfiguration.default)
         
-        let params:[String:Any] = [
+        // GET
+//        let get_params:[String:Any] = [
+//            "code":84758768
+//        ]
+//        _ = manager.fl_GET(urlString: url, params: get_params, success: { (dataTask, data) in
+//            print("\(data)")
+//        }, failure: { (dataTask, error) in
+//            print("\(error)")
+//        })
+        
+        
+        
+        
+        
+        let post_params:[String:Any] = [
             "deviceType" : 2,
             "sign" : "D850556EE632E270ACEC2714BA07C69EFED6406E1FB8E8264EBCECD8958A9B289C0CAE35AA5C2BAE",
             "timestamp" : 1486286686332,
@@ -28,22 +46,17 @@ class ViewController: UIViewController {
             "versionCode" : "2.0.6",
             "zbid" : 162120
         ]
-        _ = manager.fl_dataTask(url: url, httpMethod: "POST", parmas: params, completionHandler: { (data, response, error) in
-            print("\(response)"+"\(Thread.current)")
-            if (error != nil){
-                print("\(error)")
-            }
-            do{
-                guard data != nil else {
-                    return
-                }
-                let json = try JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.allowFragments)
-                print(json)
-            }
-            catch{
-                print("error")
-            }
+        
+        _ = manager.fl_POST(urlString: url, params: post_params, success: { (dataTask, data) in
+            
+            print("\(data)")
+            
+        }, failure: { (dataTask, error) in
+            
+            print("\(error)")
         })
+        
+        
         
         
         let block = {

@@ -14,6 +14,7 @@
 		11EA76CB1E45C1BB0094B661 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 11EA76CA1E45C1BB0094B661 /* Assets.xcassets */; };
 		11EA76CE1E45C1BB0094B661 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 11EA76CC1E45C1BB0094B661 /* LaunchScreen.storyboard */; };
 		11EA76D61E45CDB10094B661 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11EA76D51E45CDB10094B661 /* Model.swift */; };
+		11FEDA8F1E480BB600EA72CB /* FLURLRequestSerialization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11FEDA8E1E480BB600EA72CB /* FLURLRequestSerialization.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +28,7 @@
 		11EA76CD1E45C1BB0094B661 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		11EA76CF1E45C1BB0094B661 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		11EA76D51E45CDB10094B661 /* Model.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		11FEDA8E1E480BB600EA72CB /* FLURLRequestSerialization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FLURLRequestSerialization.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +72,7 @@
 				11EA76C31E45C1BA0094B661 /* AppDelegate.swift */,
 				11EA76C51E45C1BA0094B661 /* ViewController.swift */,
 				1137A56A1E46B8E00081043F /* FLHttpSessionManager.swift */,
+				11FEDA8E1E480BB600EA72CB /* FLURLRequestSerialization.swift */,
 				11EA76D51E45CDB10094B661 /* Model.swift */,
 				11EA76C71E45C1BB0094B661 /* Main.storyboard */,
 				11EA76CA1E45C1BB0094B661 /* Assets.xcassets */,
@@ -190,6 +193,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				11EA76D61E45CDB10094B661 /* Model.swift in Sources */,
+				11FEDA8F1E480BB600EA72CB /* FLURLRequestSerialization.swift in Sources */,
 				11EA76C61E45C1BA0094B661 /* ViewController.swift in Sources */,
 				1137A56B1E46B8E00081043F /* FLHttpSessionManager.swift in Sources */,
 				11EA76C41E45C1BA0094B661 /* AppDelegate.swift in Sources */,
@@ -371,6 +375,7 @@
 				1179B4961E473CDB0073DBD1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		11EA76BB1E45C1BA0094B661 /* Build configuration list for PBXProject "swiftLearning" */ = {
 			isa = XCConfigurationList;
