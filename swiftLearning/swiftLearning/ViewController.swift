@@ -8,63 +8,97 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+// 结构体
+struct Color {
+    static var red,green,blue:Double?
+//    init(red:Double, green:Double,blue:Double) {
+//        self.red = red;
+//        self.green = green
+//        self.blue = blue
+//    }
+}
 
+
+
+struct Result {
+    var success,failure:(Any)->()?
+    init() {
+        success = {
+            (data)->()
+            in
+            
+        }
+        failure = {
+            (error)->()
+            in
+            
+        }
+    }
+}
+
+typealias Complete = (String)->()
+enum Response {
+    case success(Complete)
+    case failure(String)
+}
+
+class ViewController: UIViewController {
+    
+    var result = Result()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
-        
-        // GET
-//        let baseUrl:String = "http://60.205.59.95"
-//        let url:String = "/v1/dish/info"
-        
-        // POST
-        let url:String = "/Ajax/ckUserFocus"
-        let baseUrl:String = "http://liveapi.vzan.com"
-        let manager = FLHttpSessionManager(baseUrl: baseUrl, configuration: URLSessionConfiguration.default)
-        
-        // GET
-//        let get_params:[String:Any] = [
-//            "code":84758768
-//        ]
-//        _ = manager.fl_GET(urlString: url, params: get_params, success: { (dataTask, data) in
-//            print("\(data)")
-//        }, failure: { (dataTask, error) in
-//            print("\(error)")
-//        })
+//        let color = Color(red: 1.0, green: 1.0, blue: 1.0);
+//        
+//        print("\(color.blue)")
         
         
         
-        
-        
-        let post_params:[String:Any] = [
-            "deviceType" : 2,
-            "sign" : "D850556EE632E270ACEC2714BA07C69EFED6406E1FB8E8264EBCECD8958A9B289C0CAE35AA5C2BAE",
-            "timestamp" : 1486286686332,
-            "uid" : "oW2wBwStFjhB_6oAWRDC2ocW2sSs",
-            "versionCode" : "2.0.6",
-            "zbid" : 162120
-        ]
-        
-        _ = manager.fl_POST(urlString: url, params: post_params, success: { (dataTask, data) in
-            
-            print("\(data)")
-            
-        }, failure: { (dataTask, error) in
-            
-            print("\(error)")
-        })
-        
-        
-        
-        
-        let block = {
-            () -> ()
+        result.success = {
+            (data)->()
             in
-            print("clarence")
+            print("\(data)")
         }
-        block()
+        
+        result.failure = {
+            (error)->()
+            in
+            print("\(error)")
+        }
+        
+        
+        
+        
+        // 数组遍历
+        let arr:Array = ["one","two","third","four","five"]
+        for obj in arr {
+            print("\(obj)")
+        }
+        
+        for (index,obj) in arr.enumerated() {
+            print("\(index)----\(obj)")
+        }
+        
+        
+        // 闭包
+        
+        let block:(Response)->() = {
+            (response) -> ()
+            in
+            switch response {
+            case .success(let complete):
+                complete("hello world")
+                break
+            default:
+                print("clarence")
+            }
+            
+        }
+        // 枚举和闭包组合玩法
+        block(Response.success({ (message) in
+            print("\(message)")
+        }))
         
         
         /*
@@ -88,6 +122,11 @@ class ViewController: UIViewController {
         test { (num) -> (String) in
             return "hello world" + String(num)
         }
+        
+        
+        
+        result.success("hello world")
+        result.failure("error lalalala")
     }
     
     func test(finish : (Int)->(String)) {
